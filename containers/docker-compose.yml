@@ -1,0 +1,41 @@
+services:
+  mysql:
+    image: mysql
+    container_name: mysql_container
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DB}
+    volumes:
+      - mysql_todo_api:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p${MYSQL_PASSWORD} || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  
+  todo-api:
+    image: saraymartinez002/examen_2parcial:latest
+    container_name: TodoApi
+    ports:
+      - "3000:3000"
+    environment:
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DB: ${MYSQL_DB}
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  todo-app:
+    image: juanfr97/juan-server-page:latest
+    container_name: TodoApp
+    ports:
+      - "80:80"
+
+
+volumes:
+  mysql_todo_api:
