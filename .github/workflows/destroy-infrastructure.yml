@@ -1,0 +1,46 @@
+name: Deploy Carlos Server
+
+on: 
+   workflow_dispatch:
+
+env:
+    AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+    AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    TF_VAR_DO_TOKEN: ${{ secrets.DO_TOKEN }}
+    TF_VAR_MYSQL_DB: ${{ secrets.MYSQL_DB }}
+    TF_VAR_MYSQL_HOST: ${{ secrets.MYSQL_HOST }}
+    TF_VAR_MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+    TF_VAR_MYSQL_USER: ${{ secrets.MYSQL_USER }}
+
+jobs:
+    terraform-apply:
+        runs-on: ubuntu-latest
+        steps: 
+           - name: Clone repository
+             uses: actions/checkout@v4
+
+           - name: Terraform setup
+             uses: hashicorp/setup-terraform@v2
+             with:
+                terraform_version: 1.9.8
+                terraform_wrapper: false
+
+           - name: Create SSH Keys from secrets
+             run: |
+               mkdir keys
+               echo "${{ secrets.SSH_PRIVATE_KEY }}" > ./keys/carlos_server
+               echo "${{ secrets.SSH_PUBLIC_KEY }}" > ./keys/carlos_server.pub
+               chmod 777 ./keys/carlos_server
+               chmod 777 ./keys/carlos_server.pub
+
+           - name: Terraform init
+             run: terraform init
+
+           - name: Terraform format
+             run: terraform fmt
+
+           - name: Terraform validate
+             run: terraform validate
+
+           - name: Terraform destroy
+             run: terraform destroy --auto-approve
