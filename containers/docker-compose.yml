@@ -1,4 +1,33 @@
 services:
+
+  reverse-proxy:
+    image: nginxproxy/nginx-proxy:alpine
+    container_name: 'Reverse-proxy'
+    restart: always
+    ports:
+      - 80:80
+      - 443:443
+    environment:
+      - VIRTUAL_HOST=${DOMAIN}
+      - VIRTUAL_PATH=/.well_known
+    volumes:
+      - /volumes/nginx/certs:/etc/nginx/certs:ro
+      - /volumes/nginx/vhostd:/etc/nginx/vhost.d
+      - /volumes/nginx/html:/usr/share/nginx/html:rw
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+
+  lets-encrypt:
+    image: jrcs/letsencrypt-nginx-proxy-companion
+    container_name: 'Lets-Encrypt'
+    restart: always
+    environment:
+      - NGINX_PROXY_CONTAINER=Reverse-proxy
+    volumes:
+      - /volumes/nginx/certs:/etc/nginx/certs
+      - /volumes/nginx/vhostd:/etc/nginx/vhost.d
+      - /volumes/nginx/html:/usr/share/nginx/html:rw
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+
   mysql:
     image: mysql
     container_name: mysql_container
@@ -18,14 +47,18 @@ services:
   todo-api:
     image: saraymartinez002/examen_2parcial:latest
     container_name: TodoApi
-    ports:
-      - "3000:3000"
+    expose:
+      - "3000"
     environment:
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       MYSQL_DB: ${MYSQL_DB}
       MYSQL_HOST: mysql
       MYSQL_PORT: 3306
+      VIRTUAL_HOST: ${DOMAIN}
+      VIRTUAL_PATH: /
+      LETSENCRYPT_HOST: ${DOMAIN}
+      LETSENCRYPT_EMAIL: ${USER_EMAIL}
     depends_on:
       mysql:
         condition: service_healthy
@@ -33,8 +66,8 @@ services:
   todo-app:
     image: juanfr97/juan-server-page:latest
     container_name: TodoApp
-    ports:
-      - "80:80"
+    expose:
+      - "80"
 
 
 volumes:

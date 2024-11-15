@@ -11,6 +11,8 @@ env:
     TF_VAR_MYSQL_HOST: ${{ secrets.MYSQL_HOST }}
     TF_VAR_MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
     TF_VAR_MYSQL_USER: ${{ secrets.MYSQL_USER }}
+    TF_VAR_DOMAIN: ${{ secrets.DOMAIN }}
+    TF_VAR_USER_EMAIL: ${{ secrets.USER_EMAIL }}
 
 jobs:
     terraform-apply:
