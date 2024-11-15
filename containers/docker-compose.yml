@@ -26,7 +26,7 @@ services:
       - /volumes/nginx/certs:/etc/nginx/certs
       - /volumes/nginx/vhostd:/etc/nginx/vhost.d
       - /volumes/nginx/html:/usr/share/nginx/html:rw
-      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
 
   mysql:
     image: mysql
@@ -63,11 +63,11 @@ services:
       mysql:
         condition: service_healthy
 
-  todo-app:
-    image: juanfr97/juan-server-page:latest
-    container_name: TodoApp
-    expose:
-      - "80"
+  # todo-app:
+  #   image: juanfr97/juan-server-page:latest
+  #   container_name: TodoApp
+  #   expose:
+  #     - "80"
 
 
 volumes:
