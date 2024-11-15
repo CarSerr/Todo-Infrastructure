@@ -1,4 +1,4 @@
-name: Deploy Carlos Server
+name: Destroy Carlos Server
 
 on: 
    workflow_dispatch:
